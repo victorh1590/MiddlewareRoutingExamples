@@ -13,20 +13,13 @@ app.UseMiddleware<Capital>();
 //     await context.Response.WriteAsync("Request Was Routed1");
 //   });
 
-app.UseRouting();
-app.UseEndpoints(endpoints =>
-{
-  endpoints.MapGet("routing", async context =>
-  {
-    await context.Response.WriteAsync("Request Was Routed");
-  });
-  endpoints.MapGet("capital/uk", new Capital().Invoke);
-  endpoints.MapGet("population/paris", new Population().Invoke);
+app.MapGet("routing", async context => {
+ await context.Response.WriteAsync("Request Was Routed");
 });
-
-app.Run(async (context) =>
-{
-  await context.Response.WriteAsync("Terminal Middleware Reached");
-});
+app.MapGet("capital/uk", new Capital().Invoke);
+app.MapGet("population/paris", new Population().Invoke);
+//app.Run(async (context) => {
+// await context.Response.WriteAsync("Terminal Middleware Reached");
+//});
 
 app.Run();
