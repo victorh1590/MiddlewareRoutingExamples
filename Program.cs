@@ -14,7 +14,7 @@ app.MapGet("{first}/{second}/{third}", async context =>
     .WriteAsync($"{kvp.Key}: {kvp.Value}\n");
   }
 });
-app.MapGet("capital/uk", new Capital().Invoke);
-app.MapGet("population/paris", new Population().Invoke);
+app.MapGet("capital/{country}", Capital.Endpoint);
+app.MapGet("population/{city}", Population.Endpoint);
 
 app.Run();
