@@ -33,7 +33,7 @@ namespace Platform
 
   public class LocationMiddleware
   {
-    private RequestDelegate next;
+    private RequestDelegate? next;
     private MessageOptions options;
     public LocationMiddleware(RequestDelegate nextDelegate, IOptions<MessageOptions> opts)
     {
@@ -44,11 +44,15 @@ namespace Platform
     {
       if (context.Request.Path == "/location")
       {
-        await context.Response.WriteAsync($"{options.CityName}, {options.CountryName}");
+        await context.Response.WriteAsync($"{options.CityName}, {options.CountryName}\n");
       }
-      else 
+      // else 
+      // {
+      //   await next(context);
+      // }
+      if (next != null) 
       {
-        await next(context);
+        await next(context); // Non-terminal
       }
     }
   }
