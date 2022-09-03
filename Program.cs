@@ -18,4 +18,9 @@ app.MapGet("capital/{country:regex(^uk|france|monaco$)}", Capital.Endpoint);
 app.MapGet("size/{city?}", Population.Endpoint)
   .WithMetadata(new RouteNameMetadata("population")); // Route is named population.
 
+app.MapFallback(async context =>
+{
+  await context.Response.WriteAsync("Routed to fallback endpoint"); //Fallback can be endpoint or file.
+});
+
 app.Run();
