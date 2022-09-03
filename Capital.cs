@@ -15,7 +15,13 @@ namespace Platform
           capital = "Paris";
           break;
         case "monaco":
-          context.Response.Redirect($"/population/{country}");
+          LinkGenerator? generator = context.RequestServices.GetService<LinkGenerator>();
+          // Params: HttpContext, RouteName, an object giving values to segment variables.
+          string? url = generator?.GetPathByRouteValues(context, "population", new { city = country });
+          if (url != null)
+          {
+            context.Response.Redirect(url);
+          }
           return;
       }
       if (capital != null)
