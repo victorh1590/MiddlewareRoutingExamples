@@ -15,7 +15,7 @@ app.MapGet("files/{filename}.{ext}", async context =>
   }
 });
 app.MapGet("capital/{country=France}", Capital.Endpoint);
-app.MapGet("size/{city}", Population.Endpoint)
+app.MapGet("size/{city?}", Population.Endpoint)
   .WithMetadata(new RouteNameMetadata("population")); // Route is named population.
 
 app.Run();
