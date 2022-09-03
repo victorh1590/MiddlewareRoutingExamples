@@ -5,7 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 var app = builder.Build();
 
-app.MapGet("files/{filename}.{ext}", async context =>
+app.MapGet("{first}/{second}/{*catchall}", async context =>
 {
   await context.Response.WriteAsync("Request Was Routed\n");
   foreach (var kvp in context.Request.RouteValues)
