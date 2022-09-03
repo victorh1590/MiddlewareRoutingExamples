@@ -14,7 +14,7 @@ app.MapGet("{first:alpha:length(3)}/{second:bool}", async context =>
     .WriteAsync($"{kvp.Key}: {kvp.Value}\n");
   }
 });
-app.MapGet("capital/{country=France}", Capital.Endpoint);
+app.MapGet("capital/{country:regex(^uk|france|monaco$)}", Capital.Endpoint);
 app.MapGet("size/{city?}", Population.Endpoint)
   .WithMetadata(new RouteNameMetadata("population")); // Route is named population.
 
