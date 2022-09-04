@@ -1,31 +1,7 @@
-// using Platform;
-// using Platform.Services;
-
 var builder = WebApplication.CreateBuilder(args);
-
-// ICollection<T> will be resolved using List<T>. T must be a valid type.
-builder.Services.AddSingleton(typeof(ICollection<>), typeof(List<>));
-
 var app = builder.Build();
-
-app.MapGet("string", async context =>
+app.MapGet("/", async context =>
 {
-  ICollection<string> collection = context.RequestServices.GetRequiredService<ICollection<string>>();
-  collection.Add($"Request: {DateTime.Now.ToLongTimeString()}");
-  foreach (string str in collection)
-  {
-    await context.Response.WriteAsync($"String: {str}\n");
-  }
+  await context.Response.WriteAsync("Hello World!");
 });
-
-app.MapGet("int", async context =>
-{
-  ICollection<int> collection = context.RequestServices.GetRequiredService<ICollection<int>>();
-  collection.Add(collection.Count() + 1);
-  foreach (int val in collection)
-  {
-    await context.Response.WriteAsync($"Int: {val}\n");
-  }
-});
-
 app.Run();
