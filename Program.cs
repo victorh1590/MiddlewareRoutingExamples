@@ -3,8 +3,16 @@ using Platform.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddScoped<IResponseFormatter, TimeResponseFormatter>();
-builder.Services.AddScoped<ITimeStamper, DefaultTimeStamper>();
+IWebHostEnvironment env = builder.Environment;
+if (env.IsDevelopment())
+{
+  builder.Services.AddScoped<IResponseFormatter, TimeResponseFormatter>();
+  builder.Services.AddScoped<ITimeStamper, DefaultTimeStamper>();
+}
+else
+{
+  builder.Services.AddScoped<IResponseFormatter, HtmlResponseFormatter>();
+}
 
 var app = builder.Build();
 
@@ -15,10 +23,6 @@ app.MapGet("middleware/function", async (HttpContext context,
 {
   await formatter.Format(context, "Middleware Function: It is snowing in Chicago");
 });
-
-// app.MapGet("endpoint/class", WeatherEndpoint.Endpoint);
-// app.MapWeather("endpoint/class");
-app.MapEndpoint<WeatherEndpoint>("endpoint/class");
 
 app.MapGet("endpoint/function", async (HttpContext context) =>
 {
