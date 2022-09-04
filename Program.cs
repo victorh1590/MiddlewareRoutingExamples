@@ -1,4 +1,4 @@
-using Platform;
+// using Platform;
 using Platform.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,28 +6,24 @@ var builder = WebApplication.CreateBuilder(args);
 //IWebHostEnvironment env = builder.Environment;
 IConfiguration config = builder.Configuration;
 
-builder.Services.AddScoped<IResponseFormatter>(serviceProvider =>
-{
-  string? typeName = config["services:IResponseFormatter"];
-  return (IResponseFormatter)ActivatorUtilities
-  .CreateInstance(serviceProvider, typeName == null
-  ? typeof(GuidService) : Type.GetType(typeName, true)!);
-});
-builder.Services.AddScoped<ITimeStamper, DefaultTimeStamper>();
+builder.Services.AddScoped<IResponseFormatter, TextResponseFormatter>();
+builder.Services.AddScoped<IResponseFormatter, HtmlResponseFormatter>();
+builder.Services.AddScoped<IResponseFormatter, GuidService>();
 
 var app = builder.Build();
 
-app.UseMiddleware<WeatherMiddleware>();
-
-app.MapGet("middleware/function", async (HttpContext context,
- IResponseFormatter formatter) =>
+app.MapGet("single", async context =>
 {
-  await formatter.Format(context, "Middleware Function: It is snowing in Chicago");
+  IResponseFormatter formatter = context.RequestServices
+  .GetRequiredService<IResponseFormatter>(); // Uses most recent implementation -> GuidService.
+  await formatter.Format(context, "Single service");
 });
 
-app.MapGet("endpoint/function", async (HttpContext context) =>
+app.MapGet("/", async context =>
 {
-  IResponseFormatter formatter = context.RequestServices.GetRequiredService<IResponseFormatter>();
-  await formatter.Format(context, "Endpoint Function: It is sunny in LA");
+  IResponseFormatter formatter = context.RequestServices
+  .GetServices<IResponseFormatter>().First(f => f.RichOutput); // Select first implementation with RichOutput == true;
+  await formatter.Format(context, "Multiple services");
 });
+
 app.Run();
