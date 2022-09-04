@@ -2,34 +2,18 @@ using Platform;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var servicesConfig = builder.Configuration;
-// - use configuration settings to set up services
-
-var servicesEnv = builder.Environment;
-// - use environment to set up services
-
-builder.Services.Configure<MessageOptions>(servicesConfig.GetSection("Location"));
-
 var app = builder.Build();
 
-var pipelineConfig = app.Configuration;
-// - use configuration settings to set up pipeline
+app.Logger.LogDebug("Pipeline configuration starting");
 
-var pipelineEnv = app.Environment;
-// - use envirionment to set up pipeline
+var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("Pipeline"); // Custom Logger.
 
-app.UseMiddleware<LocationMiddleware>();
+logger.LogDebug("Pipeline configuration starting");
 
-app.MapGet("config", async (HttpContext context,
- IConfiguration config, IWebHostEnvironment env) =>
-{
-  string defaultDebug = config["Logging:LogLevel:Default"];
-  await context.Response.WriteAsync($"The config setting is: {defaultDebug}");
-  await context.Response.WriteAsync($"\nThe env setting is: {env.EnvironmentName}");
-  string wsID = config["WebService:Id"];
-  string wsKey = config["WebService:Key"];
-  await context.Response.WriteAsync($"\nThe secret ID is: {wsID}");
-  await context.Response.WriteAsync($"\nThe secret Key is: {wsKey}");
-});
+app.MapGet("population/{city?}", Population.Endpoint);
+
+logger.LogDebug("Pipeline configuration complete");
+
+app.Logger.LogDebug("Pipeline configuration complete");
 
 app.Run();
