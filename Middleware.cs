@@ -42,18 +42,16 @@ namespace Platform
     }
     public async Task Invoke(HttpContext context)
     {
-      if (context.Request.Path == "/location")
+      if (next != null) await next(context);
+      if (context.Request.Path == "/location" && !context.Response.HasStarted)
       {
         await context.Response.WriteAsync($"{options.CityName}, {options.CountryName}\n");
       }
-      // else 
+
+      // if (next != null) 
       // {
-      //   await next(context);
+      //   await next(context); // Non-terminal
       // }
-      if (next != null) 
-      {
-        await next(context); // Non-terminal
-      }
     }
   }
 }
