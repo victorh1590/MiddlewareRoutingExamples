@@ -1,29 +1,31 @@
 // using Platform;
-using Platform.Services;
+// using Platform.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//IWebHostEnvironment env = builder.Environment;
-IConfiguration config = builder.Configuration;
-
-builder.Services.AddScoped<IResponseFormatter, TextResponseFormatter>();
-builder.Services.AddScoped<IResponseFormatter, HtmlResponseFormatter>();
-builder.Services.AddScoped<IResponseFormatter, GuidService>();
+// ICollection<T> will be resolved using List<T>. T must be a valid type.
+builder.Services.AddSingleton(typeof(ICollection<>), typeof(List<>));
 
 var app = builder.Build();
 
-app.MapGet("single", async context =>
+app.MapGet("string", async context =>
 {
-  IResponseFormatter formatter = context.RequestServices
-  .GetRequiredService<IResponseFormatter>(); // Uses most recent implementation -> GuidService.
-  await formatter.Format(context, "Single service");
+  ICollection<string> collection = context.RequestServices.GetRequiredService<ICollection<string>>();
+  collection.Add($"Request: {DateTime.Now.ToLongTimeString()}");
+  foreach (string str in collection)
+  {
+    await context.Response.WriteAsync($"String: {str}\n");
+  }
 });
 
-app.MapGet("/", async context =>
+app.MapGet("int", async context =>
 {
-  IResponseFormatter formatter = context.RequestServices
-  .GetServices<IResponseFormatter>().First(f => f.RichOutput); // Select first implementation with RichOutput == true;
-  await formatter.Format(context, "Multiple services");
+  ICollection<int> collection = context.RequestServices.GetRequiredService<ICollection<int>>();
+  collection.Add(collection.Count() + 1);
+  foreach (int val in collection)
+  {
+    await context.Response.WriteAsync($"Int: {val}\n");
+  }
 });
 
 app.Run();
