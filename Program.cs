@@ -3,7 +3,7 @@ using Platform.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSingleton<IResponseFormatter, HtmlResponseFormatter>();
+builder.Services.AddTransient<IResponseFormatter, GuidService>();
 
 var app = builder.Build();
 
