@@ -1,39 +1,35 @@
-using Platform;
-using Microsoft.AspNetCore.HttpLogging;
-using Microsoft.Extensions.FileProviders;
-
 var builder = WebApplication.CreateBuilder(args);
-
-//Ref https://docs.microsoft.com/en-us/aspnet/core/fundamentals/http-logging/?view=aspnetcore-6.0
-builder.Services.AddHttpLogging(opts =>
-{
-  opts.LoggingFields =
-  HttpLoggingFields.RequestMethod |
-  HttpLoggingFields.RequestPath |
-  HttpLoggingFields.ResponseStatusCode;
-});
-
 var app = builder.Build();
 
-app.UseHttpLogging();
-
-var env = app.Environment;
-
-app.UseStaticFiles();
-
-// Handles Requests to static content.
-app.UseStaticFiles(new StaticFileOptions // Config Static Files Middleware.
+app.MapGet("/cookie", async context =>
 {
-  FileProvider = new PhysicalFileProvider($"{env.ContentRootPath}/staticfiles"),
-  RequestPath = "/files"
+  int counter1 = int.Parse(context.Request.Cookies["counter1"] ?? "0") + 1; // Get existing cookie and increments value.
+  context.Response.Cookies.Append("counter1", counter1.ToString(), // Append new cookie.
+  new CookieOptions
+  {
+    MaxAge = TimeSpan.FromMinutes(30)
+  });
+
+  int counter2 = int.Parse(context.Request.Cookies["counter2"] ?? "0") + 1;
+  context.Response.Cookies.Append("counter2", counter2.ToString(),
+  new CookieOptions
+  {
+    MaxAge = TimeSpan.FromMinutes(30)
+  });
+
+  await context.Response
+  .WriteAsync($"Counter1: {counter1}, Counter2: {counter2}");
 });
 
-//var logger = app.Services
-// .GetRequiredService<ILoggerFactory>().CreateLogger("Pipeline");
-//logger.LogDebug("Pipeline configuration starting");
+app.MapGet("clear", context =>
+{
+  context.Response.Cookies.Delete("counter1");
+  context.Response.Cookies.Delete("counter2");
+  context.Response.Redirect("/");
+  return Task.CompletedTask;
+});
 
-app.MapGet("population/{city?}", Population.Endpoint);
-
-//logger.LogDebug("Pipeline configuration complete");
+app.MapFallback(async context =>
+ await context.Response.WriteAsync("Hello World!"));
 
 app.Run();
