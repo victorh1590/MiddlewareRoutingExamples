@@ -8,6 +8,7 @@ builder.Services.Configure<CookiePolicyOptions>(opts =>
 var app = builder.Build();
 
 app.UseCookiePolicy();
+app.UseMiddleware<Platform.ConsentMiddleware>();
 
 app.MapGet("/cookie", async context =>
 {
